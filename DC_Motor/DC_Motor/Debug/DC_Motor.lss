@@ -1,0 +1,866 @@
+
+DC_Motor.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000004e0  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         000000a4  00800060  000004e0  00000554  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000030  00000000  00000000  000005f8  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000628  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 000000d8  00000000  00000000  00000664  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   00001196  00000000  00000000  0000073c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 0000090a  00000000  00000000  000018d2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   00000847  00000000  00000000  000021dc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000128  00000000  00000000  00002a24  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000603  00000000  00000000  00002b4c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    000006e3  00000000  00000000  0000314f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000078  00000000  00000000  00003832  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+   8:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+   c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  10:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  14:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  18:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  1c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  20:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  24:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  28:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  2c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  30:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  34:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  38:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  3c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  40:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  44:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  48:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  4c:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+  50:	0c 94 3f 00 	jmp	0x7e	; 0x7e <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_copy_data>:
+  60:	11 e0       	ldi	r17, 0x01	; 1
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	e0 ee       	ldi	r30, 0xE0	; 224
+  68:	f4 e0       	ldi	r31, 0x04	; 4
+  6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
+  6c:	05 90       	lpm	r0, Z+
+  6e:	0d 92       	st	X+, r0
+  70:	a4 30       	cpi	r26, 0x04	; 4
+  72:	b1 07       	cpc	r27, r17
+  74:	d9 f7       	brne	.-10     	; 0x6c <__do_copy_data+0xc>
+  76:	0e 94 32 02 	call	0x464	; 0x464 <main>
+  7a:	0c 94 6e 02 	jmp	0x4dc	; 0x4dc <_exit>
+
+0000007e <__bad_interrupt>:
+  7e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+00000082 <DC_Motor_on>:
+#define      TIMER0_REGISTER_MAX_COUNTS              (0xFF)
+#define      MAX_DUTY_CYCLE                          (100.0)
+
+
+void DC_Motor_on (const DcMotor_ConfigType ConfigCont, uint8 duty_cycle, uint8 Direction)
+{
+  82:	ff 92       	push	r15
+  84:	0f 93       	push	r16
+  86:	1f 93       	push	r17
+  88:	cf 93       	push	r28
+  8a:	df 93       	push	r29
+  8c:	c6 2f       	mov	r28, r22
+  8e:	d7 2f       	mov	r29, r23
+  90:	08 2f       	mov	r16, r24
+  92:	f9 2e       	mov	r15, r25
+  94:	12 2f       	mov	r17, r18
+    uint8 Left_dir_pin  = ConfigCont.ChannelID_Left; 
+
+    uint8 dc_counts =   ( (duty_cycle) * (TIMER0_REGISTER_MAX_COUNTS / MAX_DUTY_CYCLE) );
+	
+	
+	Dio_SetChannelDirection(PortId, Enable_pin,    OUTPUT);
+  96:	41 e0       	ldi	r20, 0x01	; 1
+  98:	67 2f       	mov	r22, r23
+  9a:	8c 2f       	mov	r24, r28
+  9c:	0e 94 fb 00 	call	0x1f6	; 0x1f6 <Dio_SetChannelDirection>
+	Dio_SetChannelDirection(PortId, Right_dir_pin, OUTPUT);
+  a0:	41 e0       	ldi	r20, 0x01	; 1
+  a2:	60 2f       	mov	r22, r16
+  a4:	8c 2f       	mov	r24, r28
+  a6:	0e 94 fb 00 	call	0x1f6	; 0x1f6 <Dio_SetChannelDirection>
+	Dio_SetChannelDirection(PortId, Left_dir_pin,  OUTPUT);
+  aa:	41 e0       	ldi	r20, 0x01	; 1
+  ac:	6f 2d       	mov	r22, r15
+  ae:	8c 2f       	mov	r24, r28
+  b0:	0e 94 fb 00 	call	0x1f6	; 0x1f6 <Dio_SetChannelDirection>
+	
+	
+	
+	Dio_WriteChannel(PortId, Enable_pin);
+  b4:	6d 2f       	mov	r22, r29
+  b6:	8c 2f       	mov	r24, r28
+  b8:	0e 94 8f 00 	call	0x11e	; 0x11e <Dio_WriteChannel>
+    if(Direction == RIGHT)
+  bc:	11 11       	cpse	r17, r1
+  be:	09 c0       	rjmp	.+18     	; 0xd2 <DC_Motor_on+0x50>
+    {
+		
+        Dio_WriteChannel(PortId, Right_dir_pin);
+  c0:	60 2f       	mov	r22, r16
+  c2:	8c 2f       	mov	r24, r28
+  c4:	0e 94 8f 00 	call	0x11e	; 0x11e <Dio_WriteChannel>
+        Dio_ClearChannel(PortId, Left_dir_pin);
+  c8:	6f 2d       	mov	r22, r15
+  ca:	8c 2f       	mov	r24, r28
+  cc:	0e 94 c3 00 	call	0x186	; 0x186 <Dio_ClearChannel>
+  d0:	0a c0       	rjmp	.+20     	; 0xe6 <DC_Motor_on+0x64>
+    }
+
+    else if (Direction == LEFT)
+  d2:	11 30       	cpi	r17, 0x01	; 1
+  d4:	41 f4       	brne	.+16     	; 0xe6 <DC_Motor_on+0x64>
+    {   
+        Dio_WriteChannel(PortId, Left_dir_pin);
+  d6:	6f 2d       	mov	r22, r15
+  d8:	8c 2f       	mov	r24, r28
+  da:	0e 94 8f 00 	call	0x11e	; 0x11e <Dio_WriteChannel>
+        Dio_ClearChannel(PortId, Right_dir_pin);
+  de:	60 2f       	mov	r22, r16
+  e0:	8c 2f       	mov	r24, r28
+  e2:	0e 94 c3 00 	call	0x186	; 0x186 <Dio_ClearChannel>
+        
+    }
+
+    //PWM_ON(dc_counts);
+
+}
+  e6:	df 91       	pop	r29
+  e8:	cf 91       	pop	r28
+  ea:	1f 91       	pop	r17
+  ec:	0f 91       	pop	r16
+  ee:	ff 90       	pop	r15
+  f0:	08 95       	ret
+
+000000f2 <DC_Motor_off>:
+
+
+void DC_Motor_off(const DcMotor_ConfigType ConfigCont)
+{
+  f2:	1f 93       	push	r17
+  f4:	cf 93       	push	r28
+  f6:	df 93       	push	r29
+  f8:	c6 2f       	mov	r28, r22
+  fa:	67 2f       	mov	r22, r23
+  fc:	18 2f       	mov	r17, r24
+  fe:	d9 2f       	mov	r29, r25
+    //PWM_ON(0x00);
+	Dio_ClearChannel(ConfigCont.PortID, ConfigCont.Enable_Pin);
+ 100:	8c 2f       	mov	r24, r28
+ 102:	0e 94 c3 00 	call	0x186	; 0x186 <Dio_ClearChannel>
+	Dio_ClearChannel(ConfigCont.PortID, ConfigCont.ChannelID_Right);
+ 106:	61 2f       	mov	r22, r17
+ 108:	8c 2f       	mov	r24, r28
+ 10a:	0e 94 c3 00 	call	0x186	; 0x186 <Dio_ClearChannel>
+	Dio_ClearChannel(ConfigCont.PortID, ConfigCont.ChannelID_Left);
+ 10e:	6d 2f       	mov	r22, r29
+ 110:	8c 2f       	mov	r24, r28
+ 112:	0e 94 c3 00 	call	0x186	; 0x186 <Dio_ClearChannel>
+ 116:	df 91       	pop	r29
+ 118:	cf 91       	pop	r28
+ 11a:	1f 91       	pop	r17
+ 11c:	08 95       	ret
+
+0000011e <Dio_WriteChannel>:
+	}
+
+
+	else if(PortID == PORT_D)
+	{
+		DDRD = Level;
+ 11e:	81 11       	cpse	r24, r1
+ 120:	0b c0       	rjmp	.+22     	; 0x138 <Dio_WriteChannel+0x1a>
+ 122:	2b b3       	in	r18, 0x1b	; 27
+ 124:	81 e0       	ldi	r24, 0x01	; 1
+ 126:	90 e0       	ldi	r25, 0x00	; 0
+ 128:	02 c0       	rjmp	.+4      	; 0x12e <Dio_WriteChannel+0x10>
+ 12a:	88 0f       	add	r24, r24
+ 12c:	99 1f       	adc	r25, r25
+ 12e:	6a 95       	dec	r22
+ 130:	e2 f7       	brpl	.-8      	; 0x12a <Dio_WriteChannel+0xc>
+ 132:	82 2b       	or	r24, r18
+ 134:	8b bb       	out	0x1b, r24	; 27
+ 136:	08 95       	ret
+ 138:	81 30       	cpi	r24, 0x01	; 1
+ 13a:	59 f4       	brne	.+22     	; 0x152 <Dio_WriteChannel+0x34>
+ 13c:	28 b3       	in	r18, 0x18	; 24
+ 13e:	81 e0       	ldi	r24, 0x01	; 1
+ 140:	90 e0       	ldi	r25, 0x00	; 0
+ 142:	02 c0       	rjmp	.+4      	; 0x148 <Dio_WriteChannel+0x2a>
+ 144:	88 0f       	add	r24, r24
+ 146:	99 1f       	adc	r25, r25
+ 148:	6a 95       	dec	r22
+ 14a:	e2 f7       	brpl	.-8      	; 0x144 <Dio_WriteChannel+0x26>
+ 14c:	82 2b       	or	r24, r18
+ 14e:	88 bb       	out	0x18, r24	; 24
+ 150:	08 95       	ret
+ 152:	82 30       	cpi	r24, 0x02	; 2
+ 154:	59 f4       	brne	.+22     	; 0x16c <Dio_WriteChannel+0x4e>
+ 156:	25 b3       	in	r18, 0x15	; 21
+ 158:	81 e0       	ldi	r24, 0x01	; 1
+ 15a:	90 e0       	ldi	r25, 0x00	; 0
+ 15c:	02 c0       	rjmp	.+4      	; 0x162 <Dio_WriteChannel+0x44>
+ 15e:	88 0f       	add	r24, r24
+ 160:	99 1f       	adc	r25, r25
+ 162:	6a 95       	dec	r22
+ 164:	e2 f7       	brpl	.-8      	; 0x15e <Dio_WriteChannel+0x40>
+ 166:	82 2b       	or	r24, r18
+ 168:	85 bb       	out	0x15, r24	; 21
+ 16a:	08 95       	ret
+ 16c:	83 30       	cpi	r24, 0x03	; 3
+ 16e:	51 f4       	brne	.+20     	; 0x184 <Dio_WriteChannel+0x66>
+ 170:	22 b3       	in	r18, 0x12	; 18
+ 172:	81 e0       	ldi	r24, 0x01	; 1
+ 174:	90 e0       	ldi	r25, 0x00	; 0
+ 176:	02 c0       	rjmp	.+4      	; 0x17c <Dio_WriteChannel+0x5e>
+ 178:	88 0f       	add	r24, r24
+ 17a:	99 1f       	adc	r25, r25
+ 17c:	6a 95       	dec	r22
+ 17e:	e2 f7       	brpl	.-8      	; 0x178 <Dio_WriteChannel+0x5a>
+ 180:	82 2b       	or	r24, r18
+ 182:	82 bb       	out	0x12, r24	; 18
+ 184:	08 95       	ret
+
+00000186 <Dio_ClearChannel>:
+ 186:	81 11       	cpse	r24, r1
+ 188:	0c c0       	rjmp	.+24     	; 0x1a2 <Dio_ClearChannel+0x1c>
+ 18a:	2b b3       	in	r18, 0x1b	; 27
+ 18c:	81 e0       	ldi	r24, 0x01	; 1
+ 18e:	90 e0       	ldi	r25, 0x00	; 0
+ 190:	02 c0       	rjmp	.+4      	; 0x196 <Dio_ClearChannel+0x10>
+ 192:	88 0f       	add	r24, r24
+ 194:	99 1f       	adc	r25, r25
+ 196:	6a 95       	dec	r22
+ 198:	e2 f7       	brpl	.-8      	; 0x192 <Dio_ClearChannel+0xc>
+ 19a:	80 95       	com	r24
+ 19c:	82 23       	and	r24, r18
+ 19e:	8b bb       	out	0x1b, r24	; 27
+ 1a0:	08 95       	ret
+ 1a2:	81 30       	cpi	r24, 0x01	; 1
+ 1a4:	61 f4       	brne	.+24     	; 0x1be <Dio_ClearChannel+0x38>
+ 1a6:	28 b3       	in	r18, 0x18	; 24
+ 1a8:	81 e0       	ldi	r24, 0x01	; 1
+ 1aa:	90 e0       	ldi	r25, 0x00	; 0
+ 1ac:	02 c0       	rjmp	.+4      	; 0x1b2 <Dio_ClearChannel+0x2c>
+ 1ae:	88 0f       	add	r24, r24
+ 1b0:	99 1f       	adc	r25, r25
+ 1b2:	6a 95       	dec	r22
+ 1b4:	e2 f7       	brpl	.-8      	; 0x1ae <Dio_ClearChannel+0x28>
+ 1b6:	80 95       	com	r24
+ 1b8:	82 23       	and	r24, r18
+ 1ba:	88 bb       	out	0x18, r24	; 24
+ 1bc:	08 95       	ret
+ 1be:	82 30       	cpi	r24, 0x02	; 2
+ 1c0:	61 f4       	brne	.+24     	; 0x1da <Dio_ClearChannel+0x54>
+ 1c2:	25 b3       	in	r18, 0x15	; 21
+ 1c4:	81 e0       	ldi	r24, 0x01	; 1
+ 1c6:	90 e0       	ldi	r25, 0x00	; 0
+ 1c8:	02 c0       	rjmp	.+4      	; 0x1ce <Dio_ClearChannel+0x48>
+ 1ca:	88 0f       	add	r24, r24
+ 1cc:	99 1f       	adc	r25, r25
+ 1ce:	6a 95       	dec	r22
+ 1d0:	e2 f7       	brpl	.-8      	; 0x1ca <Dio_ClearChannel+0x44>
+ 1d2:	80 95       	com	r24
+ 1d4:	82 23       	and	r24, r18
+ 1d6:	85 bb       	out	0x15, r24	; 21
+ 1d8:	08 95       	ret
+ 1da:	83 30       	cpi	r24, 0x03	; 3
+ 1dc:	59 f4       	brne	.+22     	; 0x1f4 <Dio_ClearChannel+0x6e>
+ 1de:	22 b3       	in	r18, 0x12	; 18
+ 1e0:	81 e0       	ldi	r24, 0x01	; 1
+ 1e2:	90 e0       	ldi	r25, 0x00	; 0
+ 1e4:	02 c0       	rjmp	.+4      	; 0x1ea <Dio_ClearChannel+0x64>
+ 1e6:	88 0f       	add	r24, r24
+ 1e8:	99 1f       	adc	r25, r25
+ 1ea:	6a 95       	dec	r22
+ 1ec:	e2 f7       	brpl	.-8      	; 0x1e6 <Dio_ClearChannel+0x60>
+ 1ee:	80 95       	com	r24
+ 1f0:	82 23       	and	r24, r18
+ 1f2:	82 bb       	out	0x12, r24	; 18
+ 1f4:	08 95       	ret
+
+000001f6 <Dio_SetChannelDirection>:
+ 1f6:	81 11       	cpse	r24, r1
+ 1f8:	0a c0       	rjmp	.+20     	; 0x20e <Dio_SetChannelDirection+0x18>
+ 1fa:	8a b3       	in	r24, 0x1a	; 26
+ 1fc:	50 e0       	ldi	r21, 0x00	; 0
+ 1fe:	02 c0       	rjmp	.+4      	; 0x204 <Dio_SetChannelDirection+0xe>
+ 200:	44 0f       	add	r20, r20
+ 202:	55 1f       	adc	r21, r21
+ 204:	6a 95       	dec	r22
+ 206:	e2 f7       	brpl	.-8      	; 0x200 <Dio_SetChannelDirection+0xa>
+ 208:	48 2b       	or	r20, r24
+ 20a:	4a bb       	out	0x1a, r20	; 26
+ 20c:	08 95       	ret
+ 20e:	81 30       	cpi	r24, 0x01	; 1
+ 210:	51 f4       	brne	.+20     	; 0x226 <Dio_SetChannelDirection+0x30>
+ 212:	87 b3       	in	r24, 0x17	; 23
+ 214:	50 e0       	ldi	r21, 0x00	; 0
+ 216:	02 c0       	rjmp	.+4      	; 0x21c <Dio_SetChannelDirection+0x26>
+ 218:	44 0f       	add	r20, r20
+ 21a:	55 1f       	adc	r21, r21
+ 21c:	6a 95       	dec	r22
+ 21e:	e2 f7       	brpl	.-8      	; 0x218 <Dio_SetChannelDirection+0x22>
+ 220:	48 2b       	or	r20, r24
+ 222:	47 bb       	out	0x17, r20	; 23
+ 224:	08 95       	ret
+ 226:	82 30       	cpi	r24, 0x02	; 2
+ 228:	51 f4       	brne	.+20     	; 0x23e <Dio_SetChannelDirection+0x48>
+ 22a:	84 b3       	in	r24, 0x14	; 20
+ 22c:	50 e0       	ldi	r21, 0x00	; 0
+ 22e:	02 c0       	rjmp	.+4      	; 0x234 <Dio_SetChannelDirection+0x3e>
+ 230:	44 0f       	add	r20, r20
+ 232:	55 1f       	adc	r21, r21
+ 234:	6a 95       	dec	r22
+ 236:	e2 f7       	brpl	.-8      	; 0x230 <Dio_SetChannelDirection+0x3a>
+ 238:	48 2b       	or	r20, r24
+ 23a:	44 bb       	out	0x14, r20	; 20
+ 23c:	08 95       	ret
+ 23e:	83 30       	cpi	r24, 0x03	; 3
+ 240:	49 f4       	brne	.+18     	; 0x254 <Dio_SetChannelDirection+0x5e>
+ 242:	81 b3       	in	r24, 0x11	; 17
+ 244:	50 e0       	ldi	r21, 0x00	; 0
+ 246:	02 c0       	rjmp	.+4      	; 0x24c <Dio_SetChannelDirection+0x56>
+ 248:	44 0f       	add	r20, r20
+ 24a:	55 1f       	adc	r21, r21
+ 24c:	6a 95       	dec	r22
+ 24e:	e2 f7       	brpl	.-8      	; 0x248 <Dio_SetChannelDirection+0x52>
+ 250:	48 2b       	or	r20, r24
+ 252:	41 bb       	out	0x11, r20	; 17
+ 254:	08 95       	ret
+
+00000256 <Port_Init>:
+*  Parameters (out)  : None
+*  Return value      : None
+*  Description       : initialize Selected Ports and Specific Pins modes 
+*  *********************************************************************************************************************/
+void Port_Init(const PortConfig* ConfigPtr)
+{
+ 256:	bc 01       	movw	r22, r24
+    uint8 uint8_PinCounter=0;
+    
+
+    for(uint8_PinCounter =0; uint8_PinCounter < REQUIRD_CONFIGURED_PINS; uint8_PinCounter++)
+ 258:	90 e0       	ldi	r25, 0x00	; 0
+ 25a:	00 c1       	rjmp	.+512    	; 0x45c <__EEPROM_REGION_LENGTH__+0x5c>
+    {
+        Dio_PortType        PortID     = ConfigPtr[uint8_PinCounter].PortId;
+ 25c:	e9 2f       	mov	r30, r25
+ 25e:	f0 e0       	ldi	r31, 0x00	; 0
+ 260:	9f 01       	movw	r18, r30
+ 262:	22 0f       	add	r18, r18
+ 264:	33 1f       	adc	r19, r19
+ 266:	22 0f       	add	r18, r18
+ 268:	33 1f       	adc	r19, r19
+ 26a:	e2 0f       	add	r30, r18
+ 26c:	f3 1f       	adc	r31, r19
+ 26e:	e6 0f       	add	r30, r22
+ 270:	f7 1f       	adc	r31, r23
+ 272:	20 81       	ld	r18, Z
+        Dio_ChannelType     ChannelId  = ConfigPtr[uint8_PinCounter].ChannelId;
+ 274:	31 81       	ldd	r19, Z+1	; 0x01
+
+        if(PortID == PORT_A)
+ 276:	21 11       	cpse	r18, r1
+ 278:	3b c0       	rjmp	.+118    	; 0x2f0 <Port_Init+0x9a>
+        {
+            if(ConfigPtr[uint8_PinCounter].Pin_type == INPUT_PIN)
+ 27a:	22 81       	ldd	r18, Z+2	; 0x02
+ 27c:	21 11       	cpse	r18, r1
+ 27e:	1b c0       	rjmp	.+54     	; 0x2b6 <Port_Init+0x60>
+            {   
+                CLEAR_BIT(DDRA,  ChannelId);
+ 280:	8a b3       	in	r24, 0x1a	; 26
+ 282:	41 e0       	ldi	r20, 0x01	; 1
+ 284:	50 e0       	ldi	r21, 0x00	; 0
+ 286:	da 01       	movw	r26, r20
+ 288:	02 c0       	rjmp	.+4      	; 0x28e <Port_Init+0x38>
+ 28a:	aa 0f       	add	r26, r26
+ 28c:	bb 1f       	adc	r27, r27
+ 28e:	3a 95       	dec	r19
+ 290:	e2 f7       	brpl	.-8      	; 0x28a <Port_Init+0x34>
+ 292:	9d 01       	movw	r18, r26
+ 294:	4a 2f       	mov	r20, r26
+ 296:	40 95       	com	r20
+ 298:	84 23       	and	r24, r20
+ 29a:	8a bb       	out	0x1a, r24	; 26
+
+                if(ConfigPtr[uint8_PinCounter].Pin_mode == PULL_UP)
+ 29c:	83 81       	ldd	r24, Z+3	; 0x03
+ 29e:	81 30       	cpi	r24, 0x01	; 1
+ 2a0:	21 f4       	brne	.+8      	; 0x2aa <Port_Init+0x54>
+                {
+                    SET_BIT(PORTA, ChannelId);
+ 2a2:	8b b3       	in	r24, 0x1b	; 27
+ 2a4:	28 2b       	or	r18, r24
+ 2a6:	2b bb       	out	0x1b, r18	; 27
+ 2a8:	d8 c0       	rjmp	.+432    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                }
+
+                else if (ConfigPtr[uint8_PinCounter].Pin_mode == PULL_DOWN)
+ 2aa:	81 11       	cpse	r24, r1
+ 2ac:	d6 c0       	rjmp	.+428    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                {
+                    CLEAR_BIT(PORTA, ChannelId);
+ 2ae:	8b b3       	in	r24, 0x1b	; 27
+ 2b0:	48 23       	and	r20, r24
+ 2b2:	4b bb       	out	0x1b, r20	; 27
+ 2b4:	d2 c0       	rjmp	.+420    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                }
+
+            }
+
+            else if (ConfigPtr[uint8_PinCounter].Pin_type == OUTPUT_PIN)
+ 2b6:	21 30       	cpi	r18, 0x01	; 1
+ 2b8:	09 f0       	breq	.+2      	; 0x2bc <Port_Init+0x66>
+ 2ba:	cf c0       	rjmp	.+414    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+            {
+               SET_BIT(DDRA, ChannelId);
+ 2bc:	8a b3       	in	r24, 0x1a	; 26
+ 2be:	41 e0       	ldi	r20, 0x01	; 1
+ 2c0:	50 e0       	ldi	r21, 0x00	; 0
+ 2c2:	da 01       	movw	r26, r20
+ 2c4:	02 c0       	rjmp	.+4      	; 0x2ca <Port_Init+0x74>
+ 2c6:	aa 0f       	add	r26, r26
+ 2c8:	bb 1f       	adc	r27, r27
+ 2ca:	3a 95       	dec	r19
+ 2cc:	e2 f7       	brpl	.-8      	; 0x2c6 <Port_Init+0x70>
+ 2ce:	9d 01       	movw	r18, r26
+ 2d0:	8a 2b       	or	r24, r26
+ 2d2:	8a bb       	out	0x1a, r24	; 26
+
+               if(ConfigPtr[uint8_PinCounter].Pin_status == HIGH_LEVEL)
+ 2d4:	84 81       	ldd	r24, Z+4	; 0x04
+ 2d6:	81 30       	cpi	r24, 0x01	; 1
+ 2d8:	21 f4       	brne	.+8      	; 0x2e2 <Port_Init+0x8c>
+               {
+                    SET_BIT(PORTA, ChannelId);
+ 2da:	8b b3       	in	r24, 0x1b	; 27
+ 2dc:	28 2b       	or	r18, r24
+ 2de:	2b bb       	out	0x1b, r18	; 27
+ 2e0:	bc c0       	rjmp	.+376    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               }
+
+               else if(ConfigPtr[uint8_PinCounter].Pin_status == LOW_LEVEL)
+ 2e2:	81 11       	cpse	r24, r1
+ 2e4:	ba c0       	rjmp	.+372    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               {
+                    CLEAR_BIT(PORTA, ChannelId);
+ 2e6:	8b b3       	in	r24, 0x1b	; 27
+ 2e8:	20 95       	com	r18
+ 2ea:	28 23       	and	r18, r24
+ 2ec:	2b bb       	out	0x1b, r18	; 27
+ 2ee:	b5 c0       	rjmp	.+362    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               }
+            }
+        }
+
+        
+        else if(PortID == PORT_B)
+ 2f0:	21 30       	cpi	r18, 0x01	; 1
+ 2f2:	d9 f5       	brne	.+118    	; 0x36a <Port_Init+0x114>
+        {
+            if(ConfigPtr[uint8_PinCounter].Pin_type == INPUT_PIN)
+ 2f4:	82 81       	ldd	r24, Z+2	; 0x02
+ 2f6:	81 11       	cpse	r24, r1
+ 2f8:	1b c0       	rjmp	.+54     	; 0x330 <Port_Init+0xda>
+            {   
+                CLEAR_BIT(DDRB, ChannelId);
+ 2fa:	87 b3       	in	r24, 0x17	; 23
+ 2fc:	41 e0       	ldi	r20, 0x01	; 1
+ 2fe:	50 e0       	ldi	r21, 0x00	; 0
+ 300:	da 01       	movw	r26, r20
+ 302:	02 c0       	rjmp	.+4      	; 0x308 <Port_Init+0xb2>
+ 304:	aa 0f       	add	r26, r26
+ 306:	bb 1f       	adc	r27, r27
+ 308:	3a 95       	dec	r19
+ 30a:	e2 f7       	brpl	.-8      	; 0x304 <Port_Init+0xae>
+ 30c:	9d 01       	movw	r18, r26
+ 30e:	4a 2f       	mov	r20, r26
+ 310:	40 95       	com	r20
+ 312:	84 23       	and	r24, r20
+ 314:	87 bb       	out	0x17, r24	; 23
+
+                if(ConfigPtr[uint8_PinCounter].Pin_mode == PULL_UP)
+ 316:	83 81       	ldd	r24, Z+3	; 0x03
+ 318:	81 30       	cpi	r24, 0x01	; 1
+ 31a:	21 f4       	brne	.+8      	; 0x324 <Port_Init+0xce>
+                {
+                    SET_BIT(PORTB, ChannelId);
+ 31c:	88 b3       	in	r24, 0x18	; 24
+ 31e:	28 2b       	or	r18, r24
+ 320:	28 bb       	out	0x18, r18	; 24
+ 322:	9b c0       	rjmp	.+310    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                }
+
+                else if (ConfigPtr[uint8_PinCounter].Pin_mode == PULL_DOWN)
+ 324:	81 11       	cpse	r24, r1
+ 326:	99 c0       	rjmp	.+306    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                {
+                    CLEAR_BIT(PORTB, ChannelId);
+ 328:	88 b3       	in	r24, 0x18	; 24
+ 32a:	48 23       	and	r20, r24
+ 32c:	48 bb       	out	0x18, r20	; 24
+ 32e:	95 c0       	rjmp	.+298    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                }
+
+            }
+
+            else if (ConfigPtr[uint8_PinCounter].Pin_type == OUTPUT_PIN)
+ 330:	81 30       	cpi	r24, 0x01	; 1
+ 332:	09 f0       	breq	.+2      	; 0x336 <Port_Init+0xe0>
+ 334:	92 c0       	rjmp	.+292    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+            {
+               SET_BIT(DDRB, ChannelId);
+ 336:	87 b3       	in	r24, 0x17	; 23
+ 338:	41 e0       	ldi	r20, 0x01	; 1
+ 33a:	50 e0       	ldi	r21, 0x00	; 0
+ 33c:	da 01       	movw	r26, r20
+ 33e:	02 c0       	rjmp	.+4      	; 0x344 <Port_Init+0xee>
+ 340:	aa 0f       	add	r26, r26
+ 342:	bb 1f       	adc	r27, r27
+ 344:	3a 95       	dec	r19
+ 346:	e2 f7       	brpl	.-8      	; 0x340 <Port_Init+0xea>
+ 348:	9d 01       	movw	r18, r26
+ 34a:	8a 2b       	or	r24, r26
+ 34c:	87 bb       	out	0x17, r24	; 23
+
+               if(ConfigPtr[uint8_PinCounter].Pin_status == HIGH_LEVEL)
+ 34e:	84 81       	ldd	r24, Z+4	; 0x04
+ 350:	81 30       	cpi	r24, 0x01	; 1
+ 352:	21 f4       	brne	.+8      	; 0x35c <Port_Init+0x106>
+               {
+                    SET_BIT(PORTB, ChannelId);
+ 354:	88 b3       	in	r24, 0x18	; 24
+ 356:	28 2b       	or	r18, r24
+ 358:	28 bb       	out	0x18, r18	; 24
+ 35a:	7f c0       	rjmp	.+254    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               }
+
+               else if(ConfigPtr[uint8_PinCounter].Pin_status == LOW_LEVEL)
+ 35c:	81 11       	cpse	r24, r1
+ 35e:	7d c0       	rjmp	.+250    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               {
+                    CLEAR_BIT(PORTB, ChannelId);
+ 360:	88 b3       	in	r24, 0x18	; 24
+ 362:	20 95       	com	r18
+ 364:	28 23       	and	r18, r24
+ 366:	28 bb       	out	0x18, r18	; 24
+ 368:	78 c0       	rjmp	.+240    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+        }
+
+
+
+        
+        else if(PortID == PORT_C)
+ 36a:	22 30       	cpi	r18, 0x02	; 2
+ 36c:	d9 f5       	brne	.+118    	; 0x3e4 <Port_Init+0x18e>
+        {
+            if(ConfigPtr[uint8_PinCounter].Pin_type == INPUT_PIN)
+ 36e:	82 81       	ldd	r24, Z+2	; 0x02
+ 370:	81 11       	cpse	r24, r1
+ 372:	1b c0       	rjmp	.+54     	; 0x3aa <Port_Init+0x154>
+            {   
+                CLEAR_BIT(DDRC, ChannelId);
+ 374:	84 b3       	in	r24, 0x14	; 20
+ 376:	41 e0       	ldi	r20, 0x01	; 1
+ 378:	50 e0       	ldi	r21, 0x00	; 0
+ 37a:	da 01       	movw	r26, r20
+ 37c:	02 c0       	rjmp	.+4      	; 0x382 <Port_Init+0x12c>
+ 37e:	aa 0f       	add	r26, r26
+ 380:	bb 1f       	adc	r27, r27
+ 382:	3a 95       	dec	r19
+ 384:	e2 f7       	brpl	.-8      	; 0x37e <Port_Init+0x128>
+ 386:	9d 01       	movw	r18, r26
+ 388:	4a 2f       	mov	r20, r26
+ 38a:	40 95       	com	r20
+ 38c:	84 23       	and	r24, r20
+ 38e:	84 bb       	out	0x14, r24	; 20
+
+                if(ConfigPtr[uint8_PinCounter].Pin_mode == PULL_UP)
+ 390:	83 81       	ldd	r24, Z+3	; 0x03
+ 392:	81 30       	cpi	r24, 0x01	; 1
+ 394:	21 f4       	brne	.+8      	; 0x39e <Port_Init+0x148>
+                {
+                    SET_BIT(PORTC, ChannelId);
+ 396:	85 b3       	in	r24, 0x15	; 21
+ 398:	28 2b       	or	r18, r24
+ 39a:	25 bb       	out	0x15, r18	; 21
+ 39c:	5e c0       	rjmp	.+188    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                }
+
+                else if (ConfigPtr[uint8_PinCounter].Pin_mode == PULL_DOWN)
+ 39e:	81 11       	cpse	r24, r1
+ 3a0:	5c c0       	rjmp	.+184    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                {
+                    CLEAR_BIT(PORTC, ChannelId);
+ 3a2:	85 b3       	in	r24, 0x15	; 21
+ 3a4:	48 23       	and	r20, r24
+ 3a6:	45 bb       	out	0x15, r20	; 21
+ 3a8:	58 c0       	rjmp	.+176    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                }
+
+            }
+
+            else if (ConfigPtr[uint8_PinCounter].Pin_type == OUTPUT_PIN)
+ 3aa:	81 30       	cpi	r24, 0x01	; 1
+ 3ac:	09 f0       	breq	.+2      	; 0x3b0 <Port_Init+0x15a>
+ 3ae:	55 c0       	rjmp	.+170    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+            {
+               SET_BIT(DDRC, ChannelId);
+ 3b0:	84 b3       	in	r24, 0x14	; 20
+ 3b2:	41 e0       	ldi	r20, 0x01	; 1
+ 3b4:	50 e0       	ldi	r21, 0x00	; 0
+ 3b6:	da 01       	movw	r26, r20
+ 3b8:	02 c0       	rjmp	.+4      	; 0x3be <Port_Init+0x168>
+ 3ba:	aa 0f       	add	r26, r26
+ 3bc:	bb 1f       	adc	r27, r27
+ 3be:	3a 95       	dec	r19
+ 3c0:	e2 f7       	brpl	.-8      	; 0x3ba <Port_Init+0x164>
+ 3c2:	9d 01       	movw	r18, r26
+ 3c4:	8a 2b       	or	r24, r26
+ 3c6:	84 bb       	out	0x14, r24	; 20
+
+               if(ConfigPtr[uint8_PinCounter].Pin_status == HIGH_LEVEL)
+ 3c8:	84 81       	ldd	r24, Z+4	; 0x04
+ 3ca:	81 30       	cpi	r24, 0x01	; 1
+ 3cc:	21 f4       	brne	.+8      	; 0x3d6 <Port_Init+0x180>
+               {
+                    SET_BIT(PORTC, ChannelId);
+ 3ce:	85 b3       	in	r24, 0x15	; 21
+ 3d0:	28 2b       	or	r18, r24
+ 3d2:	25 bb       	out	0x15, r18	; 21
+ 3d4:	42 c0       	rjmp	.+132    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               }
+
+               else if(ConfigPtr[uint8_PinCounter].Pin_status == LOW_LEVEL)
+ 3d6:	81 11       	cpse	r24, r1
+ 3d8:	40 c0       	rjmp	.+128    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               {
+                    CLEAR_BIT(PORTC, ChannelId);
+ 3da:	85 b3       	in	r24, 0x15	; 21
+ 3dc:	20 95       	com	r18
+ 3de:	28 23       	and	r18, r24
+ 3e0:	25 bb       	out	0x15, r18	; 21
+ 3e2:	3b c0       	rjmp	.+118    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+            }
+        }
+
+
+        
+        else if(PortID == PORT_D)
+ 3e4:	23 30       	cpi	r18, 0x03	; 3
+ 3e6:	c9 f5       	brne	.+114    	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+        {
+            if(ConfigPtr[uint8_PinCounter].Pin_type == INPUT_PIN)
+ 3e8:	82 81       	ldd	r24, Z+2	; 0x02
+ 3ea:	81 11       	cpse	r24, r1
+ 3ec:	1b c0       	rjmp	.+54     	; 0x424 <__EEPROM_REGION_LENGTH__+0x24>
+            {   
+                CLEAR_BIT(DDRD, ChannelId);
+ 3ee:	81 b3       	in	r24, 0x11	; 17
+ 3f0:	41 e0       	ldi	r20, 0x01	; 1
+ 3f2:	50 e0       	ldi	r21, 0x00	; 0
+ 3f4:	da 01       	movw	r26, r20
+ 3f6:	02 c0       	rjmp	.+4      	; 0x3fc <Port_Init+0x1a6>
+ 3f8:	aa 0f       	add	r26, r26
+ 3fa:	bb 1f       	adc	r27, r27
+ 3fc:	3a 95       	dec	r19
+ 3fe:	e2 f7       	brpl	.-8      	; 0x3f8 <Port_Init+0x1a2>
+ 400:	9d 01       	movw	r18, r26
+ 402:	4a 2f       	mov	r20, r26
+ 404:	40 95       	com	r20
+ 406:	84 23       	and	r24, r20
+ 408:	81 bb       	out	0x11, r24	; 17
+
+                if(ConfigPtr[uint8_PinCounter].Pin_mode == PULL_UP)
+ 40a:	83 81       	ldd	r24, Z+3	; 0x03
+ 40c:	81 30       	cpi	r24, 0x01	; 1
+ 40e:	21 f4       	brne	.+8      	; 0x418 <__EEPROM_REGION_LENGTH__+0x18>
+                {
+                    SET_BIT(PORTD, ChannelId);
+ 410:	82 b3       	in	r24, 0x12	; 18
+ 412:	28 2b       	or	r18, r24
+ 414:	22 bb       	out	0x12, r18	; 18
+ 416:	21 c0       	rjmp	.+66     	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                }
+
+                else if (ConfigPtr[uint8_PinCounter].Pin_mode == PULL_DOWN)
+ 418:	81 11       	cpse	r24, r1
+ 41a:	1f c0       	rjmp	.+62     	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                {
+                    CLEAR_BIT(PORTD, ChannelId);
+ 41c:	82 b3       	in	r24, 0x12	; 18
+ 41e:	48 23       	and	r20, r24
+ 420:	42 bb       	out	0x12, r20	; 18
+ 422:	1b c0       	rjmp	.+54     	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+                }
+
+            }
+
+            else if (ConfigPtr[uint8_PinCounter].Pin_type == OUTPUT_PIN)
+ 424:	81 30       	cpi	r24, 0x01	; 1
+ 426:	c9 f4       	brne	.+50     	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+            {
+               SET_BIT(DDRD, ChannelId);
+ 428:	81 b3       	in	r24, 0x11	; 17
+ 42a:	41 e0       	ldi	r20, 0x01	; 1
+ 42c:	50 e0       	ldi	r21, 0x00	; 0
+ 42e:	da 01       	movw	r26, r20
+ 430:	02 c0       	rjmp	.+4      	; 0x436 <__EEPROM_REGION_LENGTH__+0x36>
+ 432:	aa 0f       	add	r26, r26
+ 434:	bb 1f       	adc	r27, r27
+ 436:	3a 95       	dec	r19
+ 438:	e2 f7       	brpl	.-8      	; 0x432 <__EEPROM_REGION_LENGTH__+0x32>
+ 43a:	9d 01       	movw	r18, r26
+ 43c:	8a 2b       	or	r24, r26
+ 43e:	81 bb       	out	0x11, r24	; 17
+
+               if(ConfigPtr[uint8_PinCounter].Pin_status == HIGH_LEVEL)
+ 440:	84 81       	ldd	r24, Z+4	; 0x04
+ 442:	81 30       	cpi	r24, 0x01	; 1
+ 444:	21 f4       	brne	.+8      	; 0x44e <__EEPROM_REGION_LENGTH__+0x4e>
+               {
+                    SET_BIT(PORTD, ChannelId);
+ 446:	82 b3       	in	r24, 0x12	; 18
+ 448:	28 2b       	or	r18, r24
+ 44a:	22 bb       	out	0x12, r18	; 18
+ 44c:	06 c0       	rjmp	.+12     	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               }
+
+               else if(ConfigPtr[uint8_PinCounter].Pin_status == LOW_LEVEL)
+ 44e:	81 11       	cpse	r24, r1
+ 450:	04 c0       	rjmp	.+8      	; 0x45a <__EEPROM_REGION_LENGTH__+0x5a>
+               {
+                    CLEAR_BIT(PORTD, ChannelId);
+ 452:	82 b3       	in	r24, 0x12	; 18
+ 454:	20 95       	com	r18
+ 456:	28 23       	and	r18, r24
+ 458:	22 bb       	out	0x12, r18	; 18
+void Port_Init(const PortConfig* ConfigPtr)
+{
+    uint8 uint8_PinCounter=0;
+    
+
+    for(uint8_PinCounter =0; uint8_PinCounter < REQUIRD_CONFIGURED_PINS; uint8_PinCounter++)
+ 45a:	9f 5f       	subi	r25, 0xFF	; 255
+ 45c:	90 32       	cpi	r25, 0x20	; 32
+ 45e:	08 f4       	brcc	.+2      	; 0x462 <__EEPROM_REGION_LENGTH__+0x62>
+ 460:	fd ce       	rjmp	.-518    	; 0x25c <Port_Init+0x6>
+                    CLEAR_BIT(PORTD, ChannelId);
+               }
+            }
+        }
+    }
+ 462:	08 95       	ret
+
+00000464 <main>:
+#include <util/delay.h>
+#include "PORT.h"
+
+int main(void)
+{
+   Port_Init(Port_Config_Pins);
+ 464:	84 e6       	ldi	r24, 0x64	; 100
+ 466:	90 e0       	ldi	r25, 0x00	; 0
+ 468:	0e 94 2b 01 	call	0x256	; 0x256 <Port_Init>
+    while (1) 
+    {
+		DC_Motor_on(DC_Motor_Config,0,RIGHT);
+ 46c:	c0 90 60 00 	lds	r12, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+ 470:	d0 90 61 00 	lds	r13, 0x0061	; 0x800061 <__DATA_REGION_ORIGIN__+0x1>
+ 474:	e0 90 62 00 	lds	r14, 0x0062	; 0x800062 <__DATA_REGION_ORIGIN__+0x2>
+ 478:	f0 90 63 00 	lds	r15, 0x0063	; 0x800063 <__DATA_REGION_ORIGIN__+0x3>
+ 47c:	20 e0       	ldi	r18, 0x00	; 0
+ 47e:	40 e0       	ldi	r20, 0x00	; 0
+ 480:	c7 01       	movw	r24, r14
+ 482:	b6 01       	movw	r22, r12
+ 484:	0e 94 41 00 	call	0x82	; 0x82 <DC_Motor_on>
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 488:	2a ea       	ldi	r18, 0xAA	; 170
+ 48a:	36 ee       	ldi	r19, 0xE6	; 230
+ 48c:	86 e9       	ldi	r24, 0x96	; 150
+ 48e:	91 e0       	ldi	r25, 0x01	; 1
+ 490:	21 50       	subi	r18, 0x01	; 1
+ 492:	30 40       	sbci	r19, 0x00	; 0
+ 494:	80 40       	sbci	r24, 0x00	; 0
+ 496:	90 40       	sbci	r25, 0x00	; 0
+ 498:	d9 f7       	brne	.-10     	; 0x490 <main+0x2c>
+ 49a:	00 00       	nop
+		_delay_ms(10000);
+		DC_Motor_off(DC_Motor_Config);
+ 49c:	c7 01       	movw	r24, r14
+ 49e:	b6 01       	movw	r22, r12
+ 4a0:	0e 94 79 00 	call	0xf2	; 0xf2 <DC_Motor_off>
+ 4a4:	2a ea       	ldi	r18, 0xAA	; 170
+ 4a6:	36 ee       	ldi	r19, 0xE6	; 230
+ 4a8:	86 e9       	ldi	r24, 0x96	; 150
+ 4aa:	91 e0       	ldi	r25, 0x01	; 1
+ 4ac:	21 50       	subi	r18, 0x01	; 1
+ 4ae:	30 40       	sbci	r19, 0x00	; 0
+ 4b0:	80 40       	sbci	r24, 0x00	; 0
+ 4b2:	90 40       	sbci	r25, 0x00	; 0
+ 4b4:	d9 f7       	brne	.-10     	; 0x4ac <main+0x48>
+ 4b6:	00 00       	nop
+		_delay_ms(10000);
+		DC_Motor_on(DC_Motor_Config,0,LEFT);
+ 4b8:	21 e0       	ldi	r18, 0x01	; 1
+ 4ba:	40 e0       	ldi	r20, 0x00	; 0
+ 4bc:	c7 01       	movw	r24, r14
+ 4be:	b6 01       	movw	r22, r12
+ 4c0:	0e 94 41 00 	call	0x82	; 0x82 <DC_Motor_on>
+ 4c4:	2f ef       	ldi	r18, 0xFF	; 255
+ 4c6:	33 eb       	ldi	r19, 0xB3	; 179
+ 4c8:	84 ec       	ldi	r24, 0xC4	; 196
+ 4ca:	94 e0       	ldi	r25, 0x04	; 4
+ 4cc:	21 50       	subi	r18, 0x01	; 1
+ 4ce:	30 40       	sbci	r19, 0x00	; 0
+ 4d0:	80 40       	sbci	r24, 0x00	; 0
+ 4d2:	90 40       	sbci	r25, 0x00	; 0
+ 4d4:	d9 f7       	brne	.-10     	; 0x4cc <main+0x68>
+ 4d6:	00 c0       	rjmp	.+0      	; 0x4d8 <main+0x74>
+ 4d8:	00 00       	nop
+ 4da:	c8 cf       	rjmp	.-112    	; 0x46c <main+0x8>
+
+000004dc <_exit>:
+ 4dc:	f8 94       	cli
+
+000004de <__stop_program>:
+ 4de:	ff cf       	rjmp	.-2      	; 0x4de <__stop_program>
